@@ -2,7 +2,7 @@
 
 ## Purpose
 
-I want to build a website that will contain handout and reference files to give to students in the classes that I teach.
+This website is intended to contain handout and reference files to give to students in the classes that I teach.
 
 I would like to have this is as a static website if possible, so that I can host it anywhere, and not have to worry about server-side code or databases.  The app will use JavaScript to dynamically generate the links to the handout files.
 
