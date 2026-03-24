@@ -1,0 +1,91 @@
+name: Template - Bicep Deploy
+
+on:
+  workflow_call:
+    inputs:
+      envCode:
+        description: 'Environment code (dev, qa, prod)'
+        type: string
+        required: true
+      templatePath:
+        description: 'Path to Bicep templates'
+        type: string
+        default: './infra/bicep/'
+      templateFile:
+        description: 'Main Bicep file'
+        type: string
+        default: 'main.bicep'
+      parameterFile:
+        description: 'Parameter file'
+        type: string
+        default: 'main.bicepparam'
+      resourceGroupPrefix:
+        description: 'Resource group prefix'
+        type: string
+        default: 'rg-handouts'
+      location:
+        description: 'Azure region'
+        type: string
+        default: 'centralus'
+      deploymentMode:
+        description: 'Deployment mode (create, validate, whatIf)'
+        type: string
+        default: 'create'
+
+jobs:
+  deploy-infrastructure:
+    name: Deploy Infrastructure
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.envCode }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: ./.github/actions/login-action
+        with:
+          CICD_CLIENT_ID: ${{ secrets.CICD_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Replace Tokens in Parameter File
+        uses: qetza/replacetokens-action@v1
+        with:
+          sources: '${{ inputs.templatePath }}${{ inputs.parameterFile }}'
+        env:
+          APP_NAME: ${{ vars.APP_NAME }}
+          ENVIRONMENT_CODE: ${{ inputs.envCode }}
+          INSTANCE_NUMBER: ${{ vars.INSTANCE_NUMBER }}
+          RESOURCE_GROUP_PREFIX: ${{ inputs.resourceGroupPrefix }}
+          RESOURCE_GROUP_LOCATION: ${{ inputs.location }}
+
+      - name: Create Resource Group
+        run: |
+          az group create \
+            --name "${{ inputs.resourceGroupPrefix }}-${{ inputs.envCode }}" \
+            --location "${{ inputs.location }}"
+
+      - name: What-If
+        if: ${{ inputs.deploymentMode == 'whatIf' }}
+        run: |
+          az deployment group what-if \
+            --resource-group "${{ inputs.resourceGroupPrefix }}-${{ inputs.envCode }}" \
+            --template-file "${{ inputs.templatePath }}${{ inputs.templateFile }}" \
+            --parameters "${{ inputs.templatePath }}${{ inputs.parameterFile }}"
+
+      - name: Validate
+        if: ${{ inputs.deploymentMode == 'validate' }}
+        run: |
+          az deployment group validate \
+            --resource-group "${{ inputs.resourceGroupPrefix }}-${{ inputs.envCode }}" \
+            --template-file "${{ inputs.templatePath }}${{ inputs.templateFile }}" \
+            --parameters "${{ inputs.templatePath }}${{ inputs.parameterFile }}"
+
+      - name: Deploy
+        if: ${{ inputs.deploymentMode == 'create' }}
+        run: |
+          az deployment group create \
+            --resource-group "${{ inputs.resourceGroupPrefix }}-${{ inputs.envCode }}" \
+            --template-file "${{ inputs.templatePath }}${{ inputs.templateFile }}" \
+            --parameters "${{ inputs.templatePath }}${{ inputs.parameterFile }}" \
+            --name "deploy-${{ github.run_number }}"

@@ -1,0 +1,68 @@
+name: Template - Static Web App Build and Deploy
+
+on:
+  workflow_call:
+    inputs:
+      envCode:
+        description: 'Environment code (dev, qa, prod)'
+        type: string
+        required: true
+      rootDirectory:
+        description: 'Website root directory'
+        type: string
+        default: 'src/website'
+      appName:
+        description: 'App name used to find the SWA resource'
+        type: string
+        required: true
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.envCode }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: '${{ inputs.rootDirectory }}/package-lock.json'
+
+      - name: Install Dependencies
+        working-directory: ${{ inputs.rootDirectory }}
+        run: npm ci
+
+      - name: Build
+        working-directory: ${{ inputs.rootDirectory }}
+        run: npm run build
+
+      - name: Azure Login
+        uses: ./.github/actions/login-action
+        with:
+          CICD_CLIENT_ID: ${{ secrets.CICD_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get SWA Deployment Token
+        id: get-token
+        run: |
+          SWA_NAME=$(az staticwebapp list --query "[?contains(name, '${{ inputs.appName }}')].name" -o tsv | head -1)
+          SWA_TOKEN=$(az staticwebapp secrets list --name "$SWA_NAME" --query "properties.apiKey" -o tsv)
+          echo "::add-mask::$SWA_TOKEN"
+          echo "swa_token=$SWA_TOKEN" >> $GITHUB_OUTPUT
+          echo "swa_name=$SWA_NAME" >> $GITHUB_OUTPUT
+
+      - name: Deploy to Static Web App
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ steps.get-token.outputs.swa_token }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: 'upload'
+          app_location: '${{ inputs.rootDirectory }}'
+          output_location: 'dist'
+          skip_app_build: true
+          skip_api_build: true

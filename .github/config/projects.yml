@@ -1,0 +1,23 @@
+# ------------------------------------------------------------------------------------------------------------------------
+# Project Configuration for GitHub Actions
+# These values are used across multiple workflows to keep paths consistent
+# ------------------------------------------------------------------------------------------------------------------------
+# Usage in calling workflow:
+#   jobs:
+#     load-config:
+#       uses: ./.github/workflows/template-load-config.yml
+#     build:
+#       needs: load-config
+#       uses: ./.github/workflows/template-staticwebapp-build-deploy.yml
+#       with:
+#         rootDirectory: ${{ needs.load-config.outputs.website_rootDirectory }}
+#         projectName: ${{ needs.load-config.outputs.website_projectName }}
+# ------------------------------------------------------------------------------------------------------------------------
+
+projects:
+  website:
+    shortName: 'web'
+    rootDirectory: 'src/website'
+    projectName: 'lyles-handouts-website'
+    testDirectory: ''
+    testProjectName: ''

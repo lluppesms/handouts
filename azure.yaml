@@ -1,0 +1,19 @@
+# ------------------------------------------------------------------------------------------------------------------------
+# Azure Developer CLI (azd) Configuration
+# Run `azd up` to provision infrastructure and deploy the website
+# ------------------------------------------------------------------------------------------------------------------------
+name: lyles-handouts-website
+metadata:
+  template: lyles-handouts-website
+
+infra:
+  provider: bicep
+  path: infra/bicep
+  module: main
+
+services:
+  website:
+    project: ./src/website
+    language: js
+    host: staticwebapp
+    dist: dist

@@ -1,0 +1,69 @@
+name: 'Load config/projects.yml'
+description: 'Loads project configurations from .github/config/projects.yml'
+
+outputs:
+  website_shortName:
+    description: 'Website project short name'
+    value: ${{ steps.load.outputs.website_shortName }}
+  website_rootDirectory:
+    description: 'Website project root directory'
+    value: ${{ steps.load.outputs.website_rootDirectory }}
+  website_projectName:
+    description: 'Website project name'
+    value: ${{ steps.load.outputs.website_projectName }}
+  website_testDirectory:
+    description: 'Website test directory'
+    value: ${{ steps.load.outputs.website_testDirectory }}
+  website_testProjectName:
+    description: 'Website test project name'
+    value: ${{ steps.load.outputs.website_testProjectName }}
+  projectKeys:
+    description: 'Comma-separated list of all project keys'
+    value: ${{ steps.load.outputs.projectKeys }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Load all project configurations
+      id: load
+      shell: bash
+      run: |
+        CONFIG_FILE=".github/config/projects.yml"
+        
+        if [ ! -f "$CONFIG_FILE" ]; then
+          echo "::error::Configuration file not found: $CONFIG_FILE"
+          exit 1
+        fi
+        
+        echo "📦 Loading all project configurations from $CONFIG_FILE"
+        echo ""
+        
+        PROJECT_KEYS=$(yq '.projects | keys | .[]' "$CONFIG_FILE" | tr '\n' ',' | sed 's/,$//')
+        echo "projectKeys=$PROJECT_KEYS" >> $GITHUB_OUTPUT
+        echo "Found projects: $PROJECT_KEYS"
+        echo ""
+        
+        for PROJECT in $(yq '.projects | keys | .[]' "$CONFIG_FILE"); do
+          echo "── $PROJECT ──"
+          
+          SHORT_NAME=$(yq ".projects.${PROJECT}.shortName // \"\"" "$CONFIG_FILE")
+          ROOT_DIR=$(yq ".projects.${PROJECT}.rootDirectory // \"\"" "$CONFIG_FILE")
+          PROJECT_NAME=$(yq ".projects.${PROJECT}.projectName // \"\"" "$CONFIG_FILE")
+          TEST_DIR=$(yq ".projects.${PROJECT}.testDirectory // \"\"" "$CONFIG_FILE")
+          TEST_PROJECT=$(yq ".projects.${PROJECT}.testProjectName // \"\"" "$CONFIG_FILE")
+          
+          echo "${PROJECT}_shortName=$SHORT_NAME" >> $GITHUB_OUTPUT
+          echo "${PROJECT}_rootDirectory=$ROOT_DIR" >> $GITHUB_OUTPUT
+          echo "${PROJECT}_projectName=$PROJECT_NAME" >> $GITHUB_OUTPUT
+          echo "${PROJECT}_testDirectory=$TEST_DIR" >> $GITHUB_OUTPUT
+          echo "${PROJECT}_testProjectName=$TEST_PROJECT" >> $GITHUB_OUTPUT
+          
+          echo "   shortName: $SHORT_NAME"
+          echo "   rootDirectory: $ROOT_DIR"
+          echo "   projectName: $PROJECT_NAME"
+          echo "   testDirectory: $TEST_DIR"
+          echo "   testProjectName: $TEST_PROJECT"
+          echo ""
+        done
+        
+        echo "✅ All configurations loaded successfully"

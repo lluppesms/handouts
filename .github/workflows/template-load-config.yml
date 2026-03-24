@@ -1,0 +1,30 @@
+name: Template - Load Configuration
+
+on:
+  workflow_call:
+    outputs:
+      website_shortName:
+        description: 'Website short name'
+        value: ${{ jobs.load-config.outputs.website_shortName }}
+      website_rootDirectory:
+        description: 'Website root directory'
+        value: ${{ jobs.load-config.outputs.website_rootDirectory }}
+      website_projectName:
+        description: 'Website project name'
+        value: ${{ jobs.load-config.outputs.website_projectName }}
+
+jobs:
+  load-config:
+    name: Load Project Configuration
+    runs-on: ubuntu-latest
+    outputs:
+      website_shortName: ${{ steps.config.outputs.website_shortName }}
+      website_rootDirectory: ${{ steps.config.outputs.website_rootDirectory }}
+      website_projectName: ${{ steps.config.outputs.website_projectName }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Load Configuration
+        id: config
+        uses: ./.github/actions/load-project-config

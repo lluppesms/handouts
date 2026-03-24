@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/config.ts","./src/css.d.ts","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/components/errormessage.tsx","./src/components/footer.tsx","./src/components/handoutitem.tsx","./src/components/handoutslist.tsx","./src/components/header.tsx","./src/components/loader.tsx","./src/utils/handouts-service.ts"],"version":"5.7.3"}

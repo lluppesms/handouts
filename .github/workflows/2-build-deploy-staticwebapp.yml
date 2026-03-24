@@ -1,0 +1,47 @@
+name: 2 - Build and Deploy Static Web App
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployEnvironment:
+        description: 'Environment to deploy'
+        type: environment
+        required: true
+      deploymentMode:
+        description: 'Deployment mode'
+        type: choice
+        required: true
+        default: 'create'
+        options:
+          - create
+          - validate
+          - whatIf
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  load-config:
+    name: Load Configuration
+    uses: ./.github/workflows/template-load-config.yml
+
+  deploy-infra:
+    name: Deploy Infrastructure
+    needs: load-config
+    uses: ./.github/workflows/template-bicep-deploy.yml
+    secrets: inherit
+    with:
+      envCode: ${{ inputs.deployEnvironment }}
+      deploymentMode: ${{ inputs.deploymentMode }}
+
+  build-deploy-web:
+    name: Build and Deploy Website
+    needs: [load-config, deploy-infra]
+    if: ${{ inputs.deploymentMode == 'create' }}
+    uses: ./.github/workflows/template-staticwebapp-build-deploy.yml
+    secrets: inherit
+    with:
+      envCode: ${{ inputs.deployEnvironment }}
+      rootDirectory: ${{ needs.load-config.outputs.website_rootDirectory }}
+      appName: ${{ vars.APP_NAME }}

@@ -1,0 +1,36 @@
+name: 1 - Deploy Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployEnvironment:
+        description: 'Environment to deploy'
+        type: environment
+        required: true
+      deploymentMode:
+        description: 'Deployment mode'
+        type: choice
+        required: true
+        default: 'create'
+        options:
+          - create
+          - validate
+          - whatIf
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  load-config:
+    name: Load Configuration
+    uses: ./.github/workflows/template-load-config.yml
+
+  deploy-infra:
+    name: Deploy Infrastructure
+    needs: load-config
+    uses: ./.github/workflows/template-bicep-deploy.yml
+    secrets: inherit
+    with:
+      envCode: ${{ inputs.deployEnvironment }}
+      deploymentMode: ${{ inputs.deploymentMode }}

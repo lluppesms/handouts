@@ -1,0 +1,65 @@
+# ------------------------------------------------------------------------------------------------------------------------
+# Workflow: Upload Handouts to Azure Storage
+# Syncs the handouts/ folder to the Azure Blob Storage container
+# ------------------------------------------------------------------------------------------------------------------------
+name: 3 - Upload Handouts
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployEnvironment:
+        description: 'Environment to deploy to'
+        type: environment
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  upload-handouts:
+    name: Upload Handouts to Storage
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.deployEnvironment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: ./.github/actions/login-action
+        with:
+          client-id: ${{ secrets.CICD_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get Storage Account Name
+        id: get-storage
+        shell: bash
+        run: |
+          # Find the storage account in the resource group
+          RG_NAME="${{ vars.RESOURCE_GROUP_PREFIX }}-${{ inputs.deployEnvironment }}"
+          STORAGE_NAME=$(az storage account list --resource-group "$RG_NAME" --query "[0].name" -o tsv)
+          echo "storage_name=$STORAGE_NAME" >> $GITHUB_OUTPUT
+          echo "Found storage account: $STORAGE_NAME"
+
+      - name: Upload Handouts
+        shell: bash
+        run: |
+          STORAGE_NAME="${{ steps.get-storage.outputs.storage_name }}"
+          
+          # Check if handouts folder has files
+          if [ -z "$(ls -A handouts/ 2>/dev/null)" ]; then
+            echo "⚠️ No files found in handouts/ folder. Skipping upload."
+            exit 0
+          fi
+          
+          echo "📤 Uploading handouts to storage account: $STORAGE_NAME"
+          az storage blob upload-batch \
+            --source handouts/ \
+            --destination handouts \
+            --account-name "$STORAGE_NAME" \
+            --auth-mode login \
+            --overwrite true
+          
+          echo "✅ Handouts uploaded successfully"
