@@ -1,27 +1,99 @@
-# Lyle's Handouts Website
+<div align="center">
+  <h1>Lyle's Handouts Website</h1>
+  <p><strong>Dynamic, cloud-ready handout distribution for educators</strong></p>
+  <img src="https://img.shields.io/badge/React-19-blue?logo=react" alt="React 19" />
+  <img src="https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript" alt="TypeScript 5.7" />
+  <img src="https://img.shields.io/badge/Azure%20Static%20Web%20Apps-blue?logo=microsoftazure" alt="Azure Static Web Apps" />
+  <img src="https://img.shields.io/badge/Bicep-infra-blue?logo=microsoftazure" alt="Bicep" />
+</div>
 
-## Purpose
+---
 
-This website is intended to contain handout and reference files to give to students in the classes that I teach.
+## ✨ Overview
 
-I would like to have this is as a static website if possible, so that I can host it anywhere, and not have to worry about server-side code or databases.  The app will use JavaScript to dynamically generate the links to the handout files.
+Lyle's Handouts Website is a modern, static web app for distributing class handouts and reference files. Designed for educators, it automatically lists all files in your handouts folder—no code changes required when you add new files! Host locally or in the cloud (Azure), with a responsive, accessible UI built in React + TypeScript.
 
-Handouts will be placed in a `handouts` folder, and the website will automatically and dynamically generate links to these files.  If I put new files in the folder, then they will automatically appear on the website without needing to change any code.  
+---
 
-The handouts folder could live inside the website, or it could be an Azure Storage blob container. The website will be able to read the contents of the handouts folder and generate links to the files.
+## 🚀 Features
 
-## Application Architecture
+- **Automatic handout listing**: Drop files in the `handouts/` folder—links appear instantly on the site
+- **Dual-source support**: Serve handouts from local folder (dev) or Azure Blob Storage (prod)
+- **Responsive & accessible**: Mobile-friendly, semantic HTML, ARIA, keyboard navigation
+- **Light/dark theme**: Adapts to user preference
+- **File icons & metadata**: Auto-detects file type, shows size and last modified date
+- **No backend required**: 100% static, deploy anywhere
 
-The application should be created as a React application, and should be built using TypeScript.  The website should be styled using CSS, and should be responsive so that it looks good on both desktop and mobile devices.
+---
 
-The application files should live in the src/website folder.
+## 🏗️ Project Structure
 
-## Deployment
+```
+├── handouts/           # Place your handout files here
+├── src/website/        # React + TypeScript app
+│   ├── components/     # UI components
+│   ├── utils/          # Handout fetching logic
+│   ├── styles/         # Global and modular CSS
+│   ├── scripts/        # Manifest generator for dev
+│   └── ...
+├── infra/bicep/        # Azure Bicep IaC modules
+├── .github/workflows/  # GitHub Actions CI/CD
+├── .azure/pipelines/   # Azure DevOps pipelines
+└── docs/               # Architecture & deployment docs
+```
 
-The application should be deployed to Azure using Bicep files.  The bicep files should live in the infra/bicep folder. The bicep files should create an Azure Storage account to host the handouts, and should also create an Azure Static Web App to host the website.  The bicep files should also set up the necessary permissions for the Static Web App to read from the Storage account.
+---
 
-The user should be able to deploy the application using Azure DevOps Pipelines or GitHub Actions or an `azd up` command.  The pipelines should be set to run only when triggered manually by the user..
+## 🖥️ Local Development
 
-## References
+1. Clone the repo and install dependencies:
+   ```bash
+   cd src/website
+   npm install
+   npm run dev
+   ```
+2. Add files to `handouts/` and refresh—links appear automatically!
 
-Refer to the [dadabase.demo](https://github.com/lluppesms/dadabase.demo/) repository and use that as an example for structuring the Azure Bicep Files, Azure DevOps Pipelines, GitHub Actions, and AZD. That repo should be treated as the golden code for how to create the deployment files in this repository.
+---
+
+## ☁️ Cloud Deployment
+
+- **Azure Static Web Apps** + **Azure Storage** (Blob):
+  - Infrastructure as Code with Bicep (`infra/bicep/`)
+  - Deploy via GitHub Actions, Azure DevOps, or `azd up`
+  - See [infra/bicep/workflows-readme.md](infra/bicep/workflows-readme.md) for pipeline details
+
+---
+
+## 🛠️ Infrastructure Highlights
+
+- Modular Bicep: Storage Account, Static Web App, RBAC
+- Secure: OIDC for GitHub Actions, no stored secrets
+- Follows [dadabase.demo](https://github.com/lluppesms/dadabase.demo/) best practices
+
+---
+
+## 📄 Example Handouts
+
+- [Getting-Started-Guide.md](handouts/Getting-Started-Guide.md)
+- [Sample-Handout.txt](handouts/Sample-Handout.txt)
+
+---
+
+## 📚 Documentation
+
+- [Website Plan](docs/agent-memory/website_plan.md)
+- [Bicep Implementation](docs/agent-memory/bicep_implementation.md)
+- [Deployment Pipelines](docs/agent-memory/deployment_pipelines_plan.md)
+
+---
+
+## 🤝 Contributing
+
+Pull requests welcome! See [dadabase.demo](https://github.com/lluppesms/dadabase.demo/) for code style and workflow conventions.
+
+---
+
+## 📝 License
+
+MIT License. See [LICENSE](LICENSE) if present.

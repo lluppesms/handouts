@@ -1,8 +1,0 @@
-{
-    "appInsightsSuffix": "appi",
-    "appServicePlanSuffix": "appsvc",
-    "logWorkspaceSuffix": "law",
-    "managedIdentity": "id",
-    "staticWebApp": "swa",
-    "storageAccountSuffix": "st"
-}
