@@ -8,8 +8,8 @@ metadata:
 
 infra:
   provider: bicep
-  path: infra/bicep
-  module: main
+  path: infra
+  module: azd-main
 
 services:
   website:

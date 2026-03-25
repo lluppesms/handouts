@@ -39,4 +39,4 @@ module resources './bicep/main.bicep' = {
 output STORAGE_ACCOUNT_NAME string = resources.outputs.storageAccountName
 output STORAGE_BLOB_ENDPOINT string = resources.outputs.storageBlobEndpoint
 output STATIC_WEB_APP_NAME string = resources.outputs.staticWebAppName
-output STATIC_WEB_APP_URL string = resources.outputs.staticWebAppUrl
+output STATIC_WEB_APP_URL string = resources.outputs.staticWebAppHostname

@@ -79,5 +79,4 @@ output storageAccountId string = storageAccount.id
 @description('The primary blob endpoint URL.')
 output blobEndpoint string = storageAccount.properties.primaryEndpoints.blob
 
-@description('The primary access key for the Storage Account.')
-output primaryKey string = storageAccount.listKeys().keys[0].value
+
