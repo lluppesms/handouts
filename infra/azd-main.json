@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "12904952732871305445"
+      "templateHash": "6225608998300947496"
     }
   },
   "parameters": {
@@ -64,7 +64,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "13964192864194622599"
+              "templateHash": "14402746297214838025"
             }
           },
           "parameters": {
@@ -217,7 +217,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.37.4.10188",
-                      "templateHash": "15866130142075365590"
+                      "templateHash": "8181585742490285980"
                     }
                   },
                   "parameters": {
@@ -241,7 +241,7 @@
                     },
                     "allowBlobPublicAccess": {
                       "type": "bool",
-                      "defaultValue": true,
+                      "defaultValue": false,
                       "metadata": {
                         "description": "Whether to allow public access to blobs."
                       }
@@ -300,7 +300,7 @@
                       "apiVersion": "2023-05-01",
                       "name": "[format('{0}/{1}/{2}', parameters('storageAccountName'), 'default', 'handouts')]",
                       "properties": {
-                        "publicAccess": "Blob"
+                        "publicAccess": "None"
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]"

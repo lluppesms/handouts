@@ -14,7 +14,7 @@ param location string
 param tags object
 
 @description('Whether to allow public access to blobs.')
-param allowBlobPublicAccess bool = true
+param allowBlobPublicAccess bool = false
 
 // ---------------------------------------------------------------------------
 // Storage Account
@@ -63,7 +63,7 @@ resource handoutsContainer 'Microsoft.Storage/storageAccounts/blobServices/conta
   parent: blobServices
   name: 'handouts'
   properties: {
-    publicAccess: 'Blob'
+    publicAccess: 'None'
   }
 }
 
